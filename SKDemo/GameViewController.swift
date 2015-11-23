@@ -10,113 +10,121 @@ import UIKit
 import QuartzCore
 import SceneKit
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, SCNPhysicsContactDelegate {
+    
+    var sceneView: SCNView!
+    var scene : SCNScene!
+    var barrel: SCNNode!
+    var currentRock: SCNNode!
+    var particles1Node: SCNNode!
+    var particles1: SCNParticleSystem!
+    var onFire: Bool!
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        onFire = false
+    
+        
         // create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        scene = SCNScene(named: "art.scnassets/my_scene.scn")!
+        scene.physicsWorld.contactDelegate = self
         
-        // create and add a camera to the scene
-        let cameraNode = SCNNode()
-        cameraNode.camera = SCNCamera()
-        scene.rootNode.addChildNode(cameraNode)
+        sceneView = self.view as! SCNView
         
-        // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
-        
-        // create and add a light to the scene
-        let lightNode = SCNNode()
-        lightNode.light = SCNLight()
-        lightNode.light!.type = SCNLightTypeOmni
-        lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
-        scene.rootNode.addChildNode(lightNode)
-        
-        // create and add an ambient light to the scene
-        let ambientLightNode = SCNNode()
-        ambientLightNode.light = SCNLight()
-        ambientLightNode.light!.type = SCNLightTypeAmbient
-        ambientLightNode.light!.color = UIColor.darkGrayColor()
-        scene.rootNode.addChildNode(ambientLightNode)
-        
-        // retrieve the ship node
-        let ship = scene.rootNode.childNodeWithName("ship", recursively: true)!
-        
-        // animate the 3d object
-        ship.runAction(SCNAction.repeatActionForever(SCNAction.rotateByX(0, y: 2, z: 0, duration: 1)))
-        
-        // retrieve the SCNView
-        let scnView = self.view as! SCNView
+        let tapRecognizer = UITapGestureRecognizer()
+        tapRecognizer.numberOfTapsRequired = 1
+        tapRecognizer.numberOfTouchesRequired = 1
+        tapRecognizer.addTarget(self, action: "sceneTapped:")
+        sceneView.gestureRecognizers = [tapRecognizer]
+       
+        barrel = scene.rootNode.childNodeWithName("barrel", recursively: true)!
+        barrel.physicsBody?.contactTestBitMask = 4
+        particles1Node = barrel.childNodeWithName("particles1", recursively: true)!
+        particles1 = particles1Node.particleSystems![0]
+        particles1.birthRate = 0;
         
         // set the scene to the view
-        scnView.scene = scene
+        sceneView.scene = scene
         
-        // allows the user to manipulate the camera
-        scnView.allowsCameraControl = true
         
         // show statistics such as fps and timing information
-        scnView.showsStatistics = true
+        sceneView.showsStatistics = true
+        
+        // allows the user to manipulate the camera
+        sceneView.allowsCameraControl = true
         
         // configure the view
-        scnView.backgroundColor = UIColor.blackColor()
+        sceneView.backgroundColor = UIColor.blackColor()
         
-        // add a tap gesture recognizer
-        let tapGesture = UITapGestureRecognizer(target: self, action: "handleTap:")
-        scnView.addGestureRecognizer(tapGesture)
     }
     
-    func handleTap(gestureRecognize: UIGestureRecognizer) {
-        // retrieve the SCNView
-        let scnView = self.view as! SCNView
+    func sceneTapped(recognizer: UITapGestureRecognizer) {
+        let location = recognizer.locationInView(sceneView)
         
-        // check what nodes are tapped
-        let p = gestureRecognize.locationInView(scnView)
-        let hitResults = scnView.hitTest(p, options: nil)
-        // check that we clicked on at least one object
+        let hitResults = sceneView.hitTest(location, options: nil)
         if hitResults.count > 0 {
-            // retrieved the first clicked object
-            let result: AnyObject! = hitResults[0]
-            
-            // get its material
-            let material = result.node!.geometry!.firstMaterial!
-            
-            // highlight it
-            SCNTransaction.begin()
-            SCNTransaction.setAnimationDuration(0.5)
-            
-            // on completion - unhighlight
-            SCNTransaction.setCompletionBlock {
-                SCNTransaction.begin()
-                SCNTransaction.setAnimationDuration(0.5)
+            let result = hitResults[0] as SCNHitTestResult
+            let node = result.node
+           
+            if (node.name == "cylinder") {
+
+                // retrieve the source node
                 
-                material.emission.contents = UIColor.blackColor()
+                let source = scene.rootNode.childNodeWithName("source", recursively: true)!
                 
-                SCNTransaction.commit()
+                
+                // retrieve the target
+                let target = barrel.childNodeWithName("target", recursively: true)!
+                
+                
+                let rockScene = SCNScene(named: "art.scnassets/ball.scn")
+                let rockNode = rockScene!.rootNode.childNodeWithName("geosphere", recursively: true)
+                
+                rockNode?.position = source.position
+                currentRock = rockNode!
+                source.addChildNode(rockNode!)
+                //rockNode!.physicsBody!.contactTestBitMask = 2
+                var targetVector =  barrel.presentationNode.position
+                
+                targetVector.y += target.presentationNode.position.y
+                
+                let direction = get_vector(source.position, end: targetVector)
+                
+                rockNode?.physicsBody?.applyForce(direction, atPosition: SCNVector3(x:0,y:0,z:0), impulse: true)
+                
             }
-            
-            material.emission.contents = UIColor.redColor()
-            
-            SCNTransaction.commit()
         }
     }
     
-    override func shouldAutorotate() -> Bool {
-        return true
+    func get_vector(start: SCNVector3, end: SCNVector3) -> SCNVector3{
+        let x = end.x - start.x
+        let y = end.y - start.y
+        let z = end.z - start.z
+        
+        return SCNVector3(x: x*4,y: y*4 ,z:z*4)
     }
     
-    override func prefersStatusBarHidden() -> Bool {
-        return true
-    }
-    
-    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return .AllButUpsideDown
-        } else {
-            return .All
+    func physicsWorld(world: SCNPhysicsWorld, didBeginContact contact: SCNPhysicsContact) {
+        
+        print("collision!")
+        
+        print("\(contact.nodeA.name)")
+        print("\(contact.nodeB.name)")
+        
+        if (currentRock == nil){
+            return
+        }
+        
+        if (contact.nodeA == barrel || contact.nodeA == currentRock) && (contact.nodeB == barrel || contact.nodeB == currentRock) {
+            
+             particles1.birthRate = 45
+             
+            
         }
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Release any cached data, images, etc that aren't in use.

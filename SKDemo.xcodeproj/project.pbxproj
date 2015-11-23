@@ -407,6 +407,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SKDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.comp4977.SKDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -418,6 +419,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SKDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.comp4977.SKDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -493,6 +495,7 @@
 				3453993F1C02A1F200200F78 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		345399401C02A1F200200F78 /* Build configuration list for PBXNativeTarget "SKDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -501,6 +504,7 @@
 				345399421C02A1F200200F78 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		345399431C02A1F200200F78 /* Build configuration list for PBXNativeTarget "SKDemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -509,6 +513,7 @@
 				345399451C02A1F200200F78 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
