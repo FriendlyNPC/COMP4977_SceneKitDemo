@@ -79,12 +79,12 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
                 let target = barrel.childNodeWithName("target", recursively: true)!
                 
                 
-                let rockScene = SCNScene(named: "art.scnassets/ball.scn")
-                let rockNode = rockScene!.rootNode.childNodeWithName("geosphere", recursively: true)
+                let ballScene = SCNScene(named: "art.scnassets/ball.scn")
+                let ballNode = ballScene!.rootNode.childNodeWithName("geosphere", recursively: true)
                 
-                rockNode?.position = source.position
-                currentRock = rockNode!
-                source.addChildNode(rockNode!)
+                ballNode?.position = source.position
+                currentRock = ballNode!
+                source.addChildNode(ballNode!)
                 
                 var targetVector =  barrel.presentationNode.position
                 
@@ -92,7 +92,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
                 
                 let direction = get_vector(source.position, end: targetVector)
                 
-                rockNode?.physicsBody?.applyForce(direction, atPosition: SCNVector3(x:0,y:0,z:0), impulse: true)
+                ballNode?.physicsBody?.applyForce(direction, atPosition: SCNVector3(x:0,y:0,z:0), impulse: true)
                 
             }
         }
