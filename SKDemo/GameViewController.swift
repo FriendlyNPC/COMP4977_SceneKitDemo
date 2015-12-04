@@ -40,7 +40,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         sceneView.gestureRecognizers = [tapRecognizer]
        
         barrel = scene.rootNode.childNodeWithName("barrel", recursively: true)!
-        barrel.physicsBody?.contactTestBitMask = 4
+        barrel.physicsBody?.contactTestBitMask = 8
         particles1Node = barrel.childNodeWithName("particles1", recursively: true)!
         particles1 = particles1Node.particleSystems![0]
         particles1.birthRate = 0;
@@ -85,7 +85,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
                 rockNode?.position = source.position
                 currentRock = rockNode!
                 source.addChildNode(rockNode!)
-                //rockNode!.physicsBody!.contactTestBitMask = 2
+                
                 var targetVector =  barrel.presentationNode.position
                 
                 targetVector.y += target.presentationNode.position.y
